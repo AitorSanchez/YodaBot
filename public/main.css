@@ -1,0 +1,35 @@
+.main-frame {
+    text-align: center;
+}
+
+.conv-frame {
+    width: 80%;
+    height: 80%;
+    border: 1px solid #a6a6a6;
+    min-height: 200px;
+    margin: 10%;
+}
+
+.write-span {
+    display: none;
+}
+
+.bot {
+    text-align: left;
+    border: 1px solid;
+    width: max-content;
+    padding: 2px;
+    background-color: #bac6ba;
+    margin: 2px 0 2px 0;
+    border-radius: 5px;
+}
+
+.user {
+    text-align: left;
+    border: 1px solid;
+    width: max-content;
+    padding: 2px;
+    background-color: #44db44;
+    margin: 2px 0 2px 0;
+    border-radius: 5px;
+}
