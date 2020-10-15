@@ -17,6 +17,7 @@ class APIConnection
     private const HEROKUAPP_BASEURL = "https://inbenta-graphql-swapi-prod.herokuapp.com/api";
     private const HEROKUAPP_URI = "/api";
     private const HEROKUAPP_CHAR_QUERY = "{allPeople(first: 5){people{name}}}";
+    private const HEROKUAPP_FILM_QUERY = "{allFilms(first: 5){films{title}}}";
     private const API_VERSION = "v1";
     private const MSG_ENDP = "conversation/message";
     private const CONV_ENDP = "conversation";
@@ -32,22 +33,39 @@ class APIConnection
     }
 
     /**
+     * @param string $listName
      * @return array
-     * returns an array with some star wars characters
+     * returns an array with some star wars elements depending on the list name
      * @throws GuzzleException
      */
-    public function getCharactersList() : array {
-        $body = ['query' => self::HEROKUAPP_CHAR_QUERY];
-        $response = $this->httpRequestLib->sendJsonPost(self::HEROKUAPP_BASEURL, self::HEROKUAPP_URI, $body);
-        dump($response["body"]->data->allPeople->people);die();
+    public function getHerokuList(string $listName) : array {
+        $body = null;
+        if ($listName == "characters") {
+            $body = ['query' => self::HEROKUAPP_CHAR_QUERY];
+        }
+        else if ($listName == "films") {
+            $body = ['query' => self::HEROKUAPP_FILM_QUERY];
+        }
+
+        if ($body != null) {
+            $response = $this->httpRequestLib->sendJsonPost(self::HEROKUAPP_BASEURL, self::HEROKUAPP_URI, $body);
+            if ($listName == "characters") {
+                return $response["body"]->data->allPeople->people;
+            }
+            else if ($listName == "films") {
+                return $response["body"]->data->allFilms->films;
+            }
+        }
+
+        return [];
     }
 
     /**
      * @param string $message
      * @return array
-     * sends the given message to the active conversation
      * @throws Exception
      * @throws GuzzleException
+     * sends the given message to the active conversation and returns the bot response and a flag if received
      */
     public function sendMessageToCurrentConversation(string $message) : array {
         $messageResponse = ["message" => "", "flag" => ""];

@@ -59,7 +59,7 @@ class YodaController extends AbstractController
     public function sendMessageToYoda() : Response
     {
         //validates POST parameters
-        $message = "Hi";
+        $message = "force";
         if (isset($_POST["message"])) {
             $message = $_POST["message"];
         }
@@ -67,53 +67,56 @@ class YodaController extends AbstractController
         //if message is received, starts the process
         $respStr= "";
         if (strlen($message) > 0) {
-            /*try {
-                $response = $this->apiConnection->sendMessageToCurrentConversation($message);
-                $respStr = $response["message"];
-
-                //if no response flag is set
-                if ($response["flag"] == "no-results") {
-                    $numNoResp = $this->session->get("CONSEC_NO_RESP");
-                    $numNoResp++;
-                    if ($numNoResp == 2) {
-                        //if it is the second consecutive no-result response
-                        $respStr = "second consecutive!!";
-                        $numNoResp = 0;
-                    }
-                    $this->session->set("CONSEC_NO_RESP", $numNoResp);
+            try {
+                //searches for the "force" word in the message
+                if (strpos($message, "force") > -1) {
+                    $charactersList = $this->apiConnection->getHerokuList("films");
+                    $respStr = $this->getCharactersHtml($charactersList, 'title');
                 }
                 else {
-                    $this->session->set("CONSEC_NO_RESP", 0);
+                    $response = $this->apiConnection->sendMessageToCurrentConversation($message);
+                    $respStr = $response["message"];
+
+                    //if no response flag is set
+                    if ($response["flag"] == "no-results") {
+                        $numNoResp = $this->session->get("CONSEC_NO_RESP");
+                        $numNoResp++;
+                        if ($numNoResp == 2) {
+                            //if it is the second consecutive no-result response get a characters list
+                            $numNoResp = 0;
+                            $charactersList = $this->apiConnection->getHerokuList("characters");
+                            $respStr = $this->getCharactersHtml($charactersList, "name");
+                        }
+                        $this->session->set("CONSEC_NO_RESP", $numNoResp);
+                    }
+                    else {
+                        $this->session->set("CONSEC_NO_RESP", 0);
+                    }
                 }
             }
             catch (GuzzleException $e) {
                 $respStr = "ERROR";
             } catch (Exception $e) {
                 $respStr = "ERROR";
-            }*/
-            try {
-                $response = $this->apiConnection->getCharactersList();
-            } catch (GuzzleException $e) {
             }
-
         }
 
         return new Response($respStr);
     }
 
-    /*
-     * {
-  allPeople(first: 5) {
-    people {
-      name
+    /**
+     * @param array $characters
+     * @param string $mainProp
+     * @return string
+     * returns an html list of the given characters in a string
+     */
+    private function getCharactersHtml(array $characters, string $mainProp) : string {
+        $result = "<ul>";
+        foreach($characters as $character) {
+            $result .= "<li>". $character->$mainProp ."</li>";
+        }
+        $result .= "</ul>";
+
+        return $result;
     }
-  }
-    {
-  allFilms(first: 5) {
-    films {
-      title
-    }
-  }
-}
-}*/
 }
