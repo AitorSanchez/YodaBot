@@ -59,7 +59,7 @@ class YodaController extends AbstractController
     public function sendMessageToYoda() : Response
     {
         //validates POST parameters
-        $message = "force";
+        $message = "";
         if (isset($_POST["message"])) {
             $message = $_POST["message"];
         }
